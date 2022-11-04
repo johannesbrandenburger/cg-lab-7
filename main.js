@@ -21,9 +21,8 @@ function main() {
         return;
     }
 
-    // Set clear color to black, fully opaque
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    // Clear the color buffer with specified clear color
+    // reset canvas
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     const vsSource = `
@@ -84,7 +83,7 @@ function main() {
 
     initOrbitControls();
 
-    // Draw the scene repeatedly
+    // draw the scene repeatedly
     function render(now) {
         now *= 0.001; // convert to seconds
         const deltaTime = now - then;
@@ -296,10 +295,10 @@ function initBuffers(gl) {
 function drawScene(gl, programInfo, buffers, texture, deltaTime) {
 
     // clear and configure the viewport
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
-    gl.clearDepth(1.0);                 // Clear everything
-    gl.enable(gl.DEPTH_TEST);           // Enable depth testing
-    gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);  
+    gl.clearDepth(1.0);                 
+    gl.enable(gl.DEPTH_TEST);           
+    gl.depthFunc(gl.LEQUAL);            
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     // create a perspective matrix to simulate the distortion of perspective in a camera
@@ -360,7 +359,6 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime) {
     }
 
     // pull out the colors from the color buffer into the vertexColor attribute 
-    // TODO: check if still needed later
     {
         const numComponents = 4;
         const type = gl.FLOAT;
