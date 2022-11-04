@@ -1,7 +1,12 @@
 main();
 
-let cubeRotation = 0.0;
+let cubeRotationX = 0.0;
+let cubeRotationY = 0.0;
+let cubeRotationZ = 0.0;
 let then = 0;
+let isMouseDown = false;
+let lastMouseX = 0;
+let lastMouseY = 0;
 
 function main() {
     const canvas = document.querySelector("#glCanvas");
@@ -62,6 +67,8 @@ function main() {
 
     var then = 0;
 
+    initOrbitControls();
+
     // Draw the scene repeatedly
     function render(now) {
         now *= 0.001; // convert to seconds
@@ -73,7 +80,6 @@ function main() {
         requestAnimationFrame(render);
     }
     requestAnimationFrame(render);
-
 }
 
 /**
@@ -271,15 +277,15 @@ function drawScene(gl, programInfo, buffers, deltaTime) {
     mat4.rotate( 
         modelViewMatrix,  // destination matrix
         modelViewMatrix,  // matrix to rotate
-        cubeRotation,     // amount to rotate in radians
-        [0, 0, 1]         // axis to rotate around (Z)
+        cubeRotationX,    // amount to rotate in radians
+        [0, 1, 0]         // axis to rotate around
     );
 
     mat4.rotate(
         modelViewMatrix,  // destination matrix
         modelViewMatrix,  // matrix to rotate
-        cubeRotation * .7,// amount to rotate in radians
-        [0, 1, 0]         // axis to rotate around (Y)
+        cubeRotationY,    // amount to rotate in radians
+        [1, 0, 0]         // axis to rotate around
     );
 
     // pull out the positions from the position buffer into the vertexPosition attribute
@@ -344,7 +350,30 @@ function drawScene(gl, programInfo, buffers, deltaTime) {
         const offset = 0;
         gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
     }
+}
 
-    // update the rotation for the next draw
-    cubeRotation += deltaTime;
+/**
+ * on mouse down + move track x and y offset and minipulate the cube rotation (cubeRotationZ and cubeRotationY)
+ */
+function initOrbitControls() {
+    window.addEventListener('mousedown', (event) => {
+        isMouseDown = true;
+        lastMouseX = event.clientX;
+        lastMouseY = event.clientY;
+    });
+
+    window.addEventListener('mouseup', (event) => {
+        isMouseDown = false;
+    });
+
+    window.addEventListener('mousemove', (event) => {
+        if (isMouseDown) {
+            const deltaX = event.clientX - lastMouseX;
+            const deltaY = event.clientY - lastMouseY;
+            cubeRotationX += deltaX * 0.01;
+            cubeRotationY += deltaY * 0.01;
+            lastMouseX = event.clientX;
+            lastMouseY = event.clientY;
+        }
+    });
 }
