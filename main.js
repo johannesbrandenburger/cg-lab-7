@@ -28,26 +28,29 @@ function main() {
 
     const vsSource = `
         attribute vec4 aVertexPosition;
+        attribute vec4 aVertexColor;
         attribute vec2 aTextureCoord;
 
         uniform mat4 uModelViewMatrix;
         uniform mat4 uProjectionMatrix;
-
+        
+        varying lowp vec4 vColor;
         varying highp vec2 vTextureCoord;
 
         void main(void) {
             gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
             vTextureCoord = aTextureCoord;
+            vColor = aVertexColor;
         }
     `;
 
     const fsSource = `
         varying highp vec2 vTextureCoord;
-
+        varying lowp vec4 vColor;
         uniform sampler2D uSampler;
 
         void main(void) {
-            gl_FragColor = texture2D(uSampler, vTextureCoord);
+            gl_FragColor = texture2D(uSampler, vTextureCoord) * vColor;
         }
     `;
 
@@ -358,23 +361,23 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime) {
 
     // pull out the colors from the color buffer into the vertexColor attribute 
     // TODO: check if still needed later
-    // {
-    //     const numComponents = 4;
-    //     const type = gl.FLOAT;
-    //     const normalize = false;
-    //     const stride = 0;
-    //     const offset = 0;
-    //     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
-    //     gl.vertexAttribPointer(
-    //         programInfo.attribLocations.vertexColor,
-    //         numComponents,
-    //         type,
-    //         normalize,
-    //         stride,
-    //         offset
-    //     );
-    //     gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
-    // }
+    {
+        const numComponents = 4;
+        const type = gl.FLOAT;
+        const normalize = false;
+        const stride = 0;
+        const offset = 0;
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+        gl.vertexAttribPointer(
+            programInfo.attribLocations.vertexColor,
+            numComponents,
+            type,
+            normalize,
+            stride,
+            offset
+        );
+        gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
+    }
 
     // pull out the texture coordinates from the textureCoord buffer into the textureCoord attribute
     {
