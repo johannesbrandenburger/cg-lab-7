@@ -1,5 +1,10 @@
 // @ts-nocheck
 
+main();
+
+let squareRotation = 0.0;
+let then = 0;
+
 function main() {
     const canvas = document.querySelector("#glCanvas");
 
@@ -57,7 +62,19 @@ function main() {
 
     const buffers = initBuffers(gl);
 
-    drawScene(gl, programInfo, buffers);
+    var then = 0;
+
+    // Draw the scene repeatedly
+    function render(now) {
+        now *= 0.001; // convert to seconds
+        const deltaTime = now - then;
+        then = now;
+
+        drawScene(gl, programInfo, buffers, deltaTime);
+
+        requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
 
 }
 
@@ -121,7 +138,6 @@ function loadShader(gl, type, source) {
     return shader;
 }
 
-
 /**
  * @param {WebGLRenderingContext} gl
  * @returns { { position: WebGLBuffer | null, color: WebGLBuffer | null } }
@@ -163,8 +179,9 @@ function initBuffers(gl) {
  * @param { WebGLRenderingContext } gl
  * @param {{ program: any; attribLocations: any; uniformLocations: any; }} programInfo
  * @param { { position: WebGLBuffer | null, color: WebGLBuffer | null } } buffers
+ * @param {number} deltaTime
  */
-function drawScene(gl, programInfo, buffers) {
+function drawScene(gl, programInfo, buffers, deltaTime) {
 
     // clear and configure the viewport
     gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
@@ -191,9 +208,18 @@ function drawScene(gl, programInfo, buffers) {
     const modelViewMatrix = mat4.create();
 
     // move the drawing position a bit to where start drawing the square.
-    mat4.translate(modelViewMatrix,     // destination matrix
+    mat4.translate(
+        modelViewMatrix,     // destination matrix
         modelViewMatrix,     // matrix to translate
-        [-0.0, 0.0, -6.0]);  // amount to translate
+        [-0.0, 0.0, -6.0]    // amount to translate
+    );
+
+    mat4.rotate(
+        modelViewMatrix,  // destination matrix
+        modelViewMatrix,  // matrix to rotate
+        squareRotation,   // amount to rotate in radians
+        [0, 0, 1]         // axis to rotate around
+    );
 
     // pull out the positions from the position buffer into the vertexPosition attribute
     {
@@ -239,18 +265,19 @@ function drawScene(gl, programInfo, buffers) {
     gl.uniformMatrix4fv(
         programInfo.uniformLocations.projectionMatrix,
         false,
-        projectionMatrix);
+        projectionMatrix
+    );
     gl.uniformMatrix4fv(
         programInfo.uniformLocations.modelViewMatrix,
         false,
-        modelViewMatrix);
-
+        modelViewMatrix
+    );
     {
         const offset = 0;
         const vertexCount = 4;
         gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
     }
+
+    // update the rotation for the next draw
+    squareRotation += deltaTime;
 }
-
-
-window.onload = main;
