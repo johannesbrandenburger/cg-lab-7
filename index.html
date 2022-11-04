@@ -1,23 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
-      integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
-      crossorigin="anonymous"
-      defer
-    >
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
+    integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
+    crossorigin="anonymous" defer>
     </script>
-    <script src="main.js" defer></script>
+  <script src="main.js" defer></script>
 </head>
+
 <body>
-    <h1>Hintergrundbild und Kubus mit Textur</h1>
-    <h2>Mit Mauszeiger bewegbar</h2>
-    <canvas id="glCanvas" width="1000" height="700" style="background: url('./yosemite.jpg') center fixed; background-size: cover;"></canvas>
-    </canvas>
-  </body>
+  <h1>Hintergrundbild und Kubus mit Textur</h1>
+  <h3>Mit Mauszeiger bewegbar</h3>
+  <canvas id="glCanvas" width="900" height="600"
+    style="background: url('./yosemite.jpg') center; background-size: cover;"></canvas>
+  </canvas>
+  <h3>Doku</h3>
+  <p>
+    Funktionsaufrufe:
+    <ul>
+      <li><code>main()</code></li>
+      <ul>
+        <li><code>initShaderProgram()</code></li>
+        <ul>
+          <li><code>loadShader()</code></li>
+        </ul>
+        <li><code>initBuffers()</code></li>
+        <li><code>loadTexture()</code></li>
+        <ul>
+          <li><code>isPowerOf2()</code></li>
+        </ul>
+        <li><code>initOrbitControls()</code></li>
+        <li><code>render()</code></li>
+        <ul>
+          <li><code>drawScene()</code></li>
+          <li><code>requestAnimationFrame(render)</code></li>
+        </ul>
+        <li><code>requestAnimationFrame(render)</code></li>
+      </ul>
+    </ul>
+  </p>
+  <p>
+    Beschreibung des Ablaufs / der Pipeline:
+    <ol>
+      <li>
+        Zuächst wird <code>main()</code> wird aufgerufen.
+        Die function initialisiert die WebGL-Kontextvariable <code>gl</code>.
+      </li>
+      <li>
+        Anschließend wird die Funktion <code>initShaderProgram()</code> aufgerufen.
+        Diese Funktion erstellt ein Shader-Programm, indem sie die beiden Shader
+        <code>vsSource</code> und <code>fsSource</code> mit
+        <code>loadShader()</code> lädt und anschließend mit <code>gl.createProgram()</code>
+        und <code>gl.attachShader()</code> verknüpft.
+      </li>
+      <li>
+        Nun wird die Funktion <code>initBuffers()</code> aufgerufen.
+        Diese Funktion erstellt die Geometrie des Würfels und speichert sie in
+        <code>positionBuffer</code>, <code>textureCoordBuffer</code> und
+        <code>indexBuffer</code>.
+        Außerdem wird der Farbbuffer <code>colorBuffer</code> erstellt.
+      </li>
+      <li>
+        Die Funktion <code>loadTexture()</code> lädt die Textur <code>"./wall.jpg"</code> und speichert sie in
+        <code>texture</code>.
+      </li>
+      <li>
+        Die Funktion <code>initOrbitControls()</code> initialisiert die Steuerung des Würfels mit der Maus.
+        Hierbei wird <code>cubeRotationX</code> und <code>cubeRotationY</code> verändert, die später in der
+        <code>render()</code> Funktion verwendet werden, um die Rotation des Würfels zu berechnen.
+      </li>
+      <li>
+        Die Funktion <code>render()</code> wird aufgerufen.
+        In dieser Funktion wird die Szene mit <code>drawScene()</code> gezeichnet.
+        Anschließend wird die Funktion <code>requestAnimationFrame(render)</code> aufgerufen, um die Funktion
+        <code>render()</code> in jedem Frame erneut aufzurufen.
+      </li>
+      <li>
+        <code>drawScene()</code> berechnet die Projection-Matrix und die Model-View-Matrix.
+        Außerdem wird die Model-View-Matrix mit der Rotation des Würfels multipliziert.
+        <ol>
+          <li>
+            Der Positions-Buffer (<code>buffers.position</code>) wird mit <code>gl.bindBuffer()</code> gebuffert und mit
+            <code>gl.vertexAttribPointer()</code> an den Shader übergeben.
+          </li>
+          <li>
+            Der Farb-Buffer (<code>buffers.color</code>) wird mit <code>gl.bindBuffer()</code> gebuffert und mit
+            <code>gl.vertexAttribPointer()</code> an den Shader übergeben.
+          </li>
+          <li>
+            Der Texture-Buffer (<code>buffers.textureCoord</code>) wird mit <code>gl.bindBuffer()</code> gebuffert und mit
+            <code>gl.vertexAttribPointer()</code> an den Shader übergeben.
+          </li>
+          <li>
+            Um die Vertices zu indexen wird der Index-Buffer (<code>buffers.indices</code>) mit <code>gl.bindBuffer()</code> gebuffert.
+          </li>
+          <li>
+            Die Textur des Würfels wird mit <code>gl.bindTexture()</code> gebuffert.
+          </li>
+          <li>
+            Am Schluss wird die Szene mit <code>gl.drawElements()</code> gezeichnet.
+          </li>
+        </ol>
+      </li>
+    </ol>
+  </p>
+</body>
+
 </html>
